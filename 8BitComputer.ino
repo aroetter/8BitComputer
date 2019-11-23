@@ -141,7 +141,6 @@ void loop() {
 
   if(digitalRead(RESET_BTN_IN)) {
     Serial.println("  RESET BTN!");
-    // TODO: check if this works!
     digitalWrite(RESET_BTN_OUT, HIGH);
   } else {
     digitalWrite(RESET_BTN_OUT, LOW);
