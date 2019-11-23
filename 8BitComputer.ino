@@ -7,19 +7,23 @@
 //
 
 // define which arduino pins are used for what
-#define MODE_IN       2 // D2
-#define MODE_LED      3 // D3
-#define MODE_OUT      4 // D4 // UNUSED. // TODO repurpose as reset out line.
+#define MODE_IN              2 // D2
+#define MODE_LED             3 // D3
 
-#define PROGRAM_IN    5 // D5
-#define PROGRAM_LED   6 // D6
-#define PROGRAM_OUT   7 // D7
+#define PROGRAM_IN           5 // D5
+#define PROGRAM_LED          6 // D6
+#define PROGRAM_OUT_LEFT     7 // D7
+#define PROGRAM_OUT_CENTER  12 // D12
 
-#define CLOCK_IN      8 // D8
-#define CLOCK_LED     9 // D9
-#define CLOCK_OUT    10 // D10
+#define CLOCK_IN             8 // D8
+#define CLOCK_LED            9 // D9
+#define CLOCK_OUT_LEFT      10 // D10
+#define CLOCK_OUT_CENTER    13 // D13
 
-#define RESET_BTN    11 // D11
+#define RESET_BTN_IN        11 // D11
+
+#define RESET_BTN_OUT        4 // D4
+
 
 // Need a halt read in line.
 
@@ -36,11 +40,8 @@ void setup() {
   pinMode(PROGRAM_LED, OUTPUT);
   pinMode(CLOCK_LED, OUTPUT);
 
-  pinMode(MODE_OUT, OUTPUT);
-  pinMode(PROGRAM_OUT, OUTPUT);
-  pinMode(CLOCK_OUT, OUTPUT);
-
-  pinMode(RESET_BTN, INPUT);
+  pinMode(RESET_BTN_IN, INPUT);
+  pinMode(RESET_BTN_OUT, OUTPUT);
 }
 
 // return the value of the "mode" switch. true = auto, false = manual
@@ -65,7 +66,11 @@ void SetProgram(bool isRun) {
   } else {
     Serial.print("PROGRAM is load. ");
   } 
-  digitalWrite(PROGRAM_OUT, isRun);
+
+  // TODO: check logic here.
+  // digitalWrite(PROGRAM_OUT_LEFT/RIGHT, set to read/write mode, etc., isRun);
+  // When button is up, left is connected to right, so set LEFT to 0V, set center to an input/let it float.
+  // When button is down, center is connected to right, so set CENTER to 0V, set left to an input/let it float.
 }
 
 // Set the outgoing clock line appropriately.
@@ -73,8 +78,17 @@ void SetClock(bool isAuto) {
   if(isAuto) {
     Serial.println("CLOCK is auto. ");
   } else Serial.println("CLOCK is  man. ");
+
+
+  // TODO: IMPLEMENT
+  // We need to two clock outputs, the LEFT AND CENTER OUTPUT.
   
-  digitalWrite(CLOCK_OUT, isAuto);
+  // when button is up, left is connected to right, so set LEFT to 0V. change center to an input/dangle.
+  
+  // When button is pressed (aka auto clock mode) Left pin is 4.xV, center pin is 0V.
+    // when button is depressed, it's connecting center to right (aka GND). so cet CENTER to 0V, set LEFT to an input/dangle.
+
+  // digitalWrite(CLOCK_OUT, isAuto);
 }
 
 void SetLEDs() {
@@ -105,12 +119,13 @@ void loop() {
     Serial.print("Manual mode. ");
     SetProgram(IsProgramSetToRun());
     SetClock(IsClockSetToAuto());
-    // TODO: set the actual lines up on the computer appropriately.  
   }
 
-  if(digitalRead(RESET_BTN)) {
+  if(digitalRead(RESET_BTN_IN)) {
     Serial.println("  RESET BTN!");
     // TODO: send a rest signal to the computer on reset OUT. line (add tha line)
+    // set RESET_OUT to be 5V when resest is pressed.
+  } else {
   }
   
   delay(100); // msec TODO: delete me
