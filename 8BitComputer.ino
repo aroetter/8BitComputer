@@ -59,6 +59,7 @@ bool IsClockSetToAuto() {
   return HIGH == digitalRead(CLOCK_IN);
 }
 
+// TODO confirm if both these helper methods work!!!!
 // Set the outgoing program line appropriately
 void SetProgram(bool isRun) {
   if (isRun) {
@@ -67,10 +68,21 @@ void SetProgram(bool isRun) {
     Serial.print("PROGRAM is load. ");
   } 
 
-  // TODO: check logic here.
-  // digitalWrite(PROGRAM_OUT_LEFT/RIGHT, set to read/write mode, etc., isRun);
-  // When button is up, left is connected to right, so set LEFT to 0V, set center to an input/let it float.
-  // When button is down, center is connected to right, so set CENTER to 0V, set left to an input/let it float.
+  // TODO test this!
+  if (isRun) {
+    // Up on the main board, pressing the old LOAD button puts us in run mode.
+    // In that case, center pin is tied to ground, left floats.
+    pinMode(PROGRAM_OUT_CENTER, OUTPUT);
+    digitalWrite(PROGRAM_OUT_CENTER, LOW);
+    pinMode(PROGRAM_OUT_LEFT, INPUT);
+  } else {
+    // Up on the main board, releasing the old LOAD button puts us in load mode.
+    // In that case, left pin is tied to ground, center floats.
+    pinMode(PROGRAM_OUT_LEFT, OUTPUT);
+    digitalWrite(PROGRAM_OUT_LEFT, LOW);
+    pinMode(PROGRAM_OUT_CENTER, INPUT);
+    
+  }
 }
 
 // Set the outgoing clock line appropriately.
@@ -79,17 +91,22 @@ void SetClock(bool isAuto) {
     Serial.println("CLOCK is auto. ");
   } else Serial.println("CLOCK is  man. ");
 
-
-  // TODO: IMPLEMENT
-  // We need to two clock outputs, the LEFT AND CENTER OUTPUT.
-  
-  // when button is up, left is connected to right, so set LEFT to 0V. change center to an input/dangle.
-  
-  // When button is pressed (aka auto clock mode) Left pin is 4.xV, center pin is 0V.
-    // when button is depressed, it's connecting center to right (aka GND). so cet CENTER to 0V, set LEFT to an input/dangle.
-
-  // Make two helper methods, set computer clock, set computer program mode, etc. b/c both auto and man mode will call those.
-  // digitalWrite(CLOCK_OUT, isAuto);
+  // TODO test this!
+  if (isAuto) {
+    // Up on the main board, pressing the old clock button puts us in auto clock.
+    // In that case, center pin is tied to GND. left floats.
+    // When button is pressed (aka auto clock mode) Left pin is 4.xV, center pin is 0V.
+    pinMode(CLOCK_OUT_CENTER, OUTPUT);
+    digitalWrite(CLOCK_OUT_CENTER, LOW);
+    pinMode(CLOCK_OUT_LEFT, INPUT);
+    
+  } else {
+    // Up on the main board, releasing the old clock button puts us in manual clock.
+    // In that case, left pin is tied to GND. center floats.
+    pinMode(CLOCK_OUT_LEFT, OUTPUT);
+    digitalWrite(CLOCK_OUT_LEFT, LOW);    
+    pinMode(CLOCK_OUT_CENTER, INPUT);
+  }
 }
 
 void SetLEDs() {
@@ -124,9 +141,10 @@ void loop() {
 
   if(digitalRead(RESET_BTN_IN)) {
     Serial.println("  RESET BTN!");
-    // TODO: send a rest signal to the computer on reset OUT. line (add tha line)
-    // set RESET_OUT to be 5V when resest is pressed.
+    // TODO: check if this works!
+    digitalWrite(RESET_BTN_OUT, HIGH);
   } else {
+    digitalWrite(RESET_BTN_OUT, LOW);
   }
   
   delay(100); // msec TODO: delete me
