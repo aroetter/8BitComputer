@@ -88,6 +88,7 @@ void SetClock(bool isAuto) {
   // When button is pressed (aka auto clock mode) Left pin is 4.xV, center pin is 0V.
     // when button is depressed, it's connecting center to right (aka GND). so cet CENTER to 0V, set LEFT to an input/dangle.
 
+  // Make two helper methods, set computer clock, set computer program mode, etc. b/c both auto and man mode will call those.
   // digitalWrite(CLOCK_OUT, isAuto);
 }
 
