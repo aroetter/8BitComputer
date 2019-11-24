@@ -6,14 +6,17 @@
 // If the output of the terminal monitor is all garbled, set it to 57600 baud.
 //
 
+// TODO: update the documentation with what I've done, including the ripped out HW buttons for
+// Clock, and Program, and use of inverter for former.
+//
+
 // define which arduino pins are used for what
 #define MODE_IN              2 // D2
 #define MODE_LED             3 // D3
 
 #define PROGRAM_IN           5 // D5
 #define PROGRAM_LED          6 // D6
-#define PROGRAM_OUT_LEFT     7 // D7
-#define PROGRAM_OUT_CENTER  12 // D12
+#define PROGRAM_OUT          7 // D7
 
 #define CLOCK_IN             8 // D8
 #define CLOCK_LED            9 // D9
@@ -23,8 +26,7 @@
 
 #define RESET_BTN_OUT        4 // D4
 
-
-// Need a halt read in line.
+// TODO: Need a halt read in line. // D12?
 
 /* Arduino runs this function once after loading the Nano, or after pressing the HW reset button.
  * Think of this like main() */
@@ -39,9 +41,10 @@ void setup() {
   pinMode(MODE_LED, OUTPUT);
   pinMode(PROGRAM_LED, OUTPUT);
   pinMode(CLOCK_LED, OUTPUT);
+
+  pinMode(PROGRAM_OUT, OUTPUT);
   pinMode(CLOCK_OUT, OUTPUT);
 
-  // TODO fix PROGRAM_OUT_LEFT/CENTER
   pinMode(RESET_BTN_IN, INPUT);
   pinMode(RESET_BTN_OUT, OUTPUT);
 }
@@ -63,27 +66,15 @@ bool IsClockSetToAuto() {
 
 // Set the outgoing program line appropriately
 void SetProgram(bool isRun) {
+  // TODO: maybe move LED sets here as well, so even in mode=auto we see LEDs cycling...
   if (isRun) {
     Serial.print("PROGRAM is  run. "); 
+    digitalWrite(PROGRAM_OUT, LOW);
+
   } else {
     Serial.print("PROGRAM is load. ");
+    digitalWrite(PROGRAM_OUT, HIGH);
   } 
-
-  // TODO test this!
-  if (isRun) {
-    // Up on the main board, pressing the old LOAD button puts us in run mode.
-    // In that case, center pin is tied to ground, left floats.
-    pinMode(PROGRAM_OUT_CENTER, OUTPUT);
-    digitalWrite(PROGRAM_OUT_CENTER, LOW);
-    pinMode(PROGRAM_OUT_LEFT, INPUT);
-  } else {
-    // Up on the main board, releasing the old LOAD button puts us in load mode.
-    // In that case, left pin is tied to ground, center floats.
-    pinMode(PROGRAM_OUT_LEFT, OUTPUT);
-    digitalWrite(PROGRAM_OUT_LEFT, LOW);
-    pinMode(PROGRAM_OUT_CENTER, INPUT);
-    
-  }
 }
 
 // Set the outgoing clock line appropriately.
