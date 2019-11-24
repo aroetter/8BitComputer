@@ -18,7 +18,6 @@
 #define CLOCK_IN             8 // D8
 #define CLOCK_LED            9 // D9
 #define CLOCK_OUT_LEFT      10 // D10
-#define CLOCK_OUT_CENTER    13 // D13
 
 #define RESET_BTN_IN        11 // D11
 
@@ -36,10 +35,13 @@ void setup() {
   pinMode(PROGRAM_IN, INPUT);
   pinMode(CLOCK_IN, INPUT);
 
+
   pinMode(MODE_LED, OUTPUT);
   pinMode(PROGRAM_LED, OUTPUT);
   pinMode(CLOCK_LED, OUTPUT);
+  pinMode(CLOCK_OUT_LEFT, OUTPUT);
 
+  // TODO fix PROGRAM_OUT_LEFT/CENTER
   pinMode(RESET_BTN_IN, INPUT);
   pinMode(RESET_BTN_OUT, OUTPUT);
 }
@@ -94,18 +96,15 @@ void SetClock(bool isAuto) {
   // TODO test this!
   if (isAuto) {
     // Up on the main board, pressing the old clock button puts us in auto clock.
-    // In that case, center pin is tied to GND. left floats.
+    // In that case, center pin is tied to GND. left floats, is tied to 5V through a resistor.
     // When button is pressed (aka auto clock mode) Left pin is 4.xV, center pin is 0V.
-    pinMode(CLOCK_OUT_CENTER, OUTPUT);
-    digitalWrite(CLOCK_OUT_CENTER, LOW);
-    pinMode(CLOCK_OUT_LEFT, INPUT);
+    digitalWrite(CLOCK_OUT_LEFT, HIGH);
     
   } else {
+    // TODO fix comments, rename
     // Up on the main board, releasing the old clock button puts us in manual clock.
     // In that case, left pin is tied to GND. center floats.
-    pinMode(CLOCK_OUT_LEFT, OUTPUT);
     digitalWrite(CLOCK_OUT_LEFT, LOW);    
-    pinMode(CLOCK_OUT_CENTER, INPUT);
   }
 }
 
