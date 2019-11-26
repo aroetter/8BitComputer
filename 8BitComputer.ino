@@ -48,11 +48,10 @@ void setup() {
   pinMode(PROGRAM_OUT, OUTPUT);
   pinMode(CLOCK_OUT, OUTPUT);
 
-  pinMode(RESET_BTN_IN, INPUT);
+  pinMode(RESET_BTN_IN, INPUT); // Do I need this?
   pinMode(RESET_BTN_OUT, OUTPUT);
 
-  // TODO: activate this
-  // attachInterrupt(digitalPinToInterrupt(2), handleResetButtonEvent, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(2), handleResetButtonEvent, CHANGE);
 }
 
 void handleResetButtonEvent() {
@@ -131,13 +130,5 @@ void loop() {
     SetClock(IsClockSetToAuto());
   }
 
-
-  if(digitalRead(RESET_BTN_IN)) {
-    Serial.println("  RESET BTN!");
-    digitalWrite(RESET_BTN_OUT, HIGH);
-  } else {
-    digitalWrite(RESET_BTN_OUT, LOW);
-  }
-  
   delay(100); // msec TODO: delete me
 }
