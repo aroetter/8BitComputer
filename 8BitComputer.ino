@@ -11,7 +11,7 @@
 //
 
 // define which arduino pins are used for what
-#define MODE_IN              2 // D2
+#define MODE_IN             13 // D13
 #define MODE_LED             3 // D3
 
 #define PROGRAM_IN           5 // D5
@@ -22,15 +22,18 @@
 #define CLOCK_LED            9 // D9
 #define CLOCK_OUT           10 // D10
 
-#define RESET_BTN_IN        11 // D11
+#define RESET_BTN_IN         2 // D2
 
 #define RESET_BTN_OUT        4 // D4
 
 // TODO: Need a halt read in line. // D12?
 
+volatile bool resetPressed = false;
+
 /* Arduino runs this function once after loading the Nano, or after pressing the HW reset button.
  * Think of this like main() */
 void setup() {
+  resetPressed = false;
   Serial.begin(57600);
 
   pinMode(MODE_IN, INPUT);
@@ -47,7 +50,16 @@ void setup() {
 
   pinMode(RESET_BTN_IN, INPUT);
   pinMode(RESET_BTN_OUT, OUTPUT);
+
+  // TODO: move the pins around so D2 is to reset_in
+  // attachInterrupt(digitalPinToInterrupt(2), handleResetButtonEvent, CHANGE);
 }
+
+void handleResetButtonEvent() {
+  digitalWrite(RESET_BTN_OUT, digitalRead(RESET_BTN_IN) ? HIGH : LOW);  
+}
+
+// TODO: also handle the mode switch changing, basically set the mode LED and also trigger a reset?
 
 // return the value of the "mode" switch. true = auto, false = manual
 bool IsModeSetToAuto() {
@@ -100,11 +112,7 @@ void SetLEDs() {
 }
 
 
-void loop() {
-  SetLEDs();
-
-  bool isAutoMode = IsModeSetToAuto();
-  if(isAutoMode) {
+void DoAutoMode() {
     Serial.println("In Auto mode");
     // TODO: write the auto mode, basically, need to:
     // Clock == Off/Manual
@@ -115,11 +123,22 @@ void loop() {
     // Program into run mode
     // Master Reset
     // Clock Auto
+}
+
+void loop() {
+  SetLEDs(); // TODO: remove this
+
+  resetPressed = false;
+
+  bool isAutoMode = IsModeSetToAuto();
+  if(isAutoMode) {
+    DoAutoMode();
   } else {
     Serial.print("Manual mode. ");
     SetProgram(IsProgramSetToRun());
     SetClock(IsClockSetToAuto());
   }
+
 
   if(digitalRead(RESET_BTN_IN)) {
     Serial.println("  RESET BTN!");
