@@ -55,7 +55,9 @@ void setup() {
 }
 
 void handleResetButtonEvent() {
-  digitalWrite(RESET_BTN_OUT, digitalRead(RESET_BTN_IN) ? HIGH : LOW);  
+  bool curPress = digitalRead(RESET_BTN_IN);
+  if (curPress) resetPressed = true;
+  digitalWrite(RESET_BTN_OUT, curPress ? HIGH : LOW);
 }
 
 // return the value of the "mode" switch. true = auto, false = manual
@@ -104,7 +106,20 @@ void SetClock(bool isAuto) {
 }
 
 void DoAutoMode() {
-    Serial.println("In Auto mode");
+    Serial.println("Top of DoAutoMode()");
+
+    if(resetPressed) return;
+    Serial.println("Hello 1"); delay (1000);
+
+    if(resetPressed) return;
+    Serial.println("Hello 2"); delay (1000);
+
+    if(resetPressed) return;
+    Serial.println("Hello 3"); delay (1000);
+
+    if(resetPressed) return;
+    Serial.println("Hello 4"); delay (1000);
+    
     // TODO: write the auto mode, basically, need to:
     // Clock == Off/Manual
     // Program into load mode
@@ -114,6 +129,7 @@ void DoAutoMode() {
     // Program into run mode
     // Master Reset
     // Clock Auto
+    // Now just sleep forever.
 }
 
 void loop() {
