@@ -26,7 +26,7 @@
 
 #define RESET_BTN_OUT        4 // D4
 
-// TODO: Need a halt read in line. // D12?
+// TODO: Need a halt read in line.
 
 volatile bool resetPressed = false;
 
@@ -51,15 +51,13 @@ void setup() {
   pinMode(RESET_BTN_IN, INPUT);
   pinMode(RESET_BTN_OUT, OUTPUT);
 
-  // TODO: move the pins around so D2 is to reset_in
+  // TODO: activate this
   // attachInterrupt(digitalPinToInterrupt(2), handleResetButtonEvent, CHANGE);
 }
 
 void handleResetButtonEvent() {
   digitalWrite(RESET_BTN_OUT, digitalRead(RESET_BTN_IN) ? HIGH : LOW);  
 }
-
-// TODO: also handle the mode switch changing, basically set the mode LED and also trigger a reset?
 
 // return the value of the "mode" switch. true = auto, false = manual
 bool IsModeSetToAuto() {
@@ -78,7 +76,8 @@ bool IsClockSetToAuto() {
 
 // Set the outgoing program line appropriately
 void SetProgram(bool isRun) {
-  // TODO: maybe move LED sets here as well, so even in mode=auto we see LEDs cycling...
+  digitalWrite(PROGRAM_LED, isRun ? HIGH : LOW);
+
   if (isRun) {
     Serial.print("PROGRAM is  run. "); 
     digitalWrite(PROGRAM_OUT, LOW);
@@ -91,6 +90,8 @@ void SetProgram(bool isRun) {
 
 // Set the outgoing clock line appropriately.
 void SetClock(bool isAuto) {
+  digitalWrite(CLOCK_LED, isAuto ? HIGH : LOW);
+
   if(isAuto) {
     Serial.println("CLOCK is auto. ");
     // Up on the main board, pressing the old clock button puts us in auto clock.
@@ -102,15 +103,6 @@ void SetClock(bool isAuto) {
     digitalWrite(CLOCK_OUT, LOW);
   }
 }
-
-void SetLEDs() {
-  bool isAutoMode = IsModeSetToAuto();
-  digitalWrite(MODE_LED, isAutoMode);
-  // only light other LEDs if we are not in auto mode!
-  digitalWrite(PROGRAM_LED, !isAutoMode && IsProgramSetToRun());
-  digitalWrite(CLOCK_LED, !isAutoMode && IsClockSetToAuto());
-}
-
 
 void DoAutoMode() {
     Serial.println("In Auto mode");
@@ -126,11 +118,11 @@ void DoAutoMode() {
 }
 
 void loop() {
-  SetLEDs(); // TODO: remove this
-
   resetPressed = false;
 
   bool isAutoMode = IsModeSetToAuto();
+  digitalWrite(MODE_LED, isAutoMode ? HIGH : LOW);
+  
   if(isAutoMode) {
     DoAutoMode();
   } else {
