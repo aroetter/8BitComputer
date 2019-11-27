@@ -88,14 +88,6 @@ void SetProgram(bool isRun) {
 
 
   digitalWrite(PROGRAM_OUT, isRun ? LOW : HIGH);
-/*  if (isRun) {
-    Serial.println("PROGRAM is  run. "); // TODO remove
-    digitalWrite(PROGRAM_OUT, LOW);
-
-  } else {
-    Serial.println("PROGRAM is load. "); // TODO remove
-    digitalWrite(PROGRAM_OUT, HIGH);
-  }*/ 
 }
 
 // Set the outgoing clock line appropriately.
@@ -106,15 +98,6 @@ void SetClock(bool isAuto) {
   // In that case, center pin is tied to GND. left is tied to 5V through a resistor.
   // When button is pressed (aka auto clock mode) Left pin goes high, center pin is 0V.
   digitalWrite(CLOCK_OUT, isAuto ? HIGH : LOW);
-
-/*
-  if(isAuto) {
-    Serial.println("CLOCK is auto. "); // TODO remove
-    digitalWrite(CLOCK_OUT, HIGH);
-  } else {
-    Serial.println("CLOCK is  man. "); // TODO remove
-    digitalWrite(CLOCK_OUT, LOW);
-  }*/
 }
 
 void MomentarilyDepressReset() {
@@ -181,5 +164,5 @@ void loop() {
     SetClock(IsClockSetToAuto());
   }
 
-  delay(100); // msec TODO: delete me
+  delay(100);
 }
