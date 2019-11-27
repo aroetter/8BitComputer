@@ -26,7 +26,7 @@
 
 #define RESET_BTN_OUT        4 // D4
 
-// TODO: Need a halt read in line.
+#define HALT_IN             11 // D11
 
 volatile bool resetPressed = false;
 
@@ -39,7 +39,9 @@ void setup() {
   pinMode(MODE_IN, INPUT);
   pinMode(PROGRAM_IN, INPUT);
   pinMode(CLOCK_IN, INPUT);
-
+  pinMode(RESET_BTN_IN, INPUT);
+  attachInterrupt(digitalPinToInterrupt(RESET_BTN_IN), handleResetButtonEvent, CHANGE);
+  pinMode(HALT_IN, INPUT);
 
   pinMode(MODE_LED, OUTPUT);
   pinMode(PROGRAM_LED, OUTPUT);
@@ -47,17 +49,14 @@ void setup() {
 
   pinMode(PROGRAM_OUT, OUTPUT);
   pinMode(CLOCK_OUT, OUTPUT);
-
-  pinMode(RESET_BTN_IN, INPUT); // Do I need this?
   pinMode(RESET_BTN_OUT, OUTPUT);
 
-  attachInterrupt(digitalPinToInterrupt(2), handleResetButtonEvent, CHANGE);
 }
 
 void handleResetButtonEvent() {
   bool curPress = digitalRead(RESET_BTN_IN);
   if (curPress) resetPressed = true;
-  digitalWrite(RESET_BTN_OUT, curPress ? HIGH : LOW);
+  SetReset(curPress);
 }
 
 // return the value of the "mode" switch. true = auto, false = manual
@@ -75,16 +74,24 @@ bool IsClockSetToAuto() {
   return HIGH == digitalRead(CLOCK_IN);
 }
 
+bool IsHalted() {
+  return HIGH == digitalRead(HALT_IN);
+}
+
+void SetReset(bool flag) {
+  digitalWrite(RESET_BTN_OUT, flag ? HIGH : LOW);  
+}
+
 // Set the outgoing program line appropriately
 void SetProgram(bool isRun) {
   digitalWrite(PROGRAM_LED, isRun ? HIGH : LOW);
 
   if (isRun) {
-    Serial.print("PROGRAM is  run. "); 
+    Serial.println("PROGRAM is  run. "); // TODO remove
     digitalWrite(PROGRAM_OUT, LOW);
 
   } else {
-    Serial.print("PROGRAM is load. ");
+    Serial.println("PROGRAM is load. "); // TODO remove
     digitalWrite(PROGRAM_OUT, HIGH);
   } 
 }
@@ -94,42 +101,65 @@ void SetClock(bool isAuto) {
   digitalWrite(CLOCK_LED, isAuto ? HIGH : LOW);
 
   if(isAuto) {
-    Serial.println("CLOCK is auto. ");
+    Serial.println("CLOCK is auto. "); // TODO remove
     // Up on the main board, pressing the old clock button puts us in auto clock.
     // In that case, center pin is tied to GND. left is tied to 5V through a resistor.
     // When button is pressed (aka auto clock mode) Left pin goes high, center pin is 0V.
     digitalWrite(CLOCK_OUT, HIGH);
   } else {
-    Serial.println("CLOCK is  man. ");
+    Serial.println("CLOCK is  man. "); // TODO remove
     digitalWrite(CLOCK_OUT, LOW);
   }
 }
 
+void MomentarilyDepressReset() {
+  SetReset(true);
+  delay(50); // TODO is this needed?
+  SetReset(false);
+}
+
 void DoAutoMode() {
-    Serial.println("Top of DoAutoMode()");
+  Serial.println("\n\nTop of DoAutoMode()");
 
-    if(resetPressed) return;
-    Serial.println("Hello 1"); delay (1000);
+  // 1. Clock == Off/Manual
+  SetClock(false);
 
-    if(resetPressed) return;
-    Serial.println("Hello 2"); delay (1000);
+  // 2. Program into load mode
+  if(resetPressed) return;
+  SetProgram(false);
 
-    if(resetPressed) return;
-    Serial.println("Hello 3"); delay (1000);
+  // 3. Reset
+  if(resetPressed) return;
+  MomentarilyDepressReset();
 
-    if(resetPressed) return;
-    Serial.println("Hello 4"); delay (1000);
-    
-    // TODO: write the auto mode, basically, need to:
-    // Clock == Off/Manual
-    // Program into load mode
-    // Reset
-    // Start clock, wait until read a HALT
-    // Clock Off/Manual
-    // Program into run mode
-    // Master Reset
-    // Clock Auto
-    // Now just sleep forever.
+  // 4. Start clock, wait until read a HALT
+  if(resetPressed) return;
+  SetClock(true);
+  while(!IsHalted() && !resetPressed) delay(100); // wait for load to finish.
+  Serial.println("Program loaded!");
+
+  // 5. Clock Off/Manual
+  if(resetPressed) return;
+  SetClock(false);
+
+  // 6. Program into run mode
+  if(resetPressed) return;
+  SetProgram(true);
+
+  // 7. Master Reset
+  if(resetPressed) return;
+  MomentarilyDepressReset();
+
+  // 8. Clock Auto
+  if(resetPressed) return;
+  SetClock(true);
+
+  // 9. Now just sleep forever. until a reset.
+  Serial.println("Just waiting for a reset...");
+  while(!resetPressed) {
+    delay(100);
+  }
+  Serial.println("Exiting DoAutoMode()");  
 }
 
 void loop() {
