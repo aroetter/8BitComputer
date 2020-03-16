@@ -1,11 +1,16 @@
-// 
+// Mac <-> Arduino Serial Comms Debugging Info
+//
+// If you get an error:
+//   "avrdude: ser_open(): can't open device "/dev/cu.usbserial-AL03KKY3": No such file or directory"
+//   In the IDE menubar go to Tools > Port and select the correct port.
 // If you get errors during upload like:
 //   "avrdude: stk500_getsync() attempt 1 of 10: not in sync: resp=0xf8"
-// In the IDE menubar go to Tools > Processor > "ATMega328P (Old Bootloader)"
+//   In the IDE menubar go to Tools > Processor > "ATMega328P (Old Bootloader)"
+//   Actually, as of 3/16/2020 (Arduino 1.8.12) using old bootloaded causes exactly that problem
+//   Swithcing to "ATMega328P" fixed it.
 //
 // If the output of the terminal monitor is all garbled, set it to 57600 baud.
 //
-
 // TODO: update the documentation with what I've done, including the ripped out HW buttons for
 // Clock, and Program, and use of inverter for former.
 //
