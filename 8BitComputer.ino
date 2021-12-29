@@ -1,5 +1,13 @@
 // Mac <-> Arduino Serial Comms Debugging Info
 //
+// With the Arduino Nano that is soldered onto the EEPROM Programmer Arduino,
+// (the one that came with header pins already soldered on)
+// Settings are:
+// * Tools > Board > "Arduino Nano"
+// * Tools > Processor > "ATMega328P"
+// * Tools > Port > make sure the right serial port is selected
+// * Tools > Serial Monitor > Set Baud to 57600 baud (to avoid garbled output).
+//
 // If you get an error:
 //   "avrdude: ser_open(): can't open device "/dev/cu.usbserial-AL03KKY3": No such file or directory"
 //   In the IDE menubar go to Tools > Port and select the correct port.
@@ -9,7 +17,6 @@
 //   Actually, as of 3/16/2020 (Arduino 1.8.12) using old bootloaded causes exactly that problem
 //   Swithcing to "ATMega328P" fixed it.
 //
-// If the output of the terminal monitor is all garbled, set it to 57600 baud.
 //
 // TODO: update the documentation with what I've done, including the ripped out HW buttons for
 // Clock, and Program, and use of inverter for former.
@@ -29,7 +36,9 @@
 
 #define RESET_BTN_IN         2 // D2
 
-#define RESET_BTN_OUT        4 // D4
+#define CLR                  4 // D4
+#define NOT_CLR              12 // D12
+
 
 #define HALT_IN             11 // D11
 
@@ -54,7 +63,10 @@ void setup() {
 
   pinMode(PROGRAM_OUT, OUTPUT);
   pinMode(CLOCK_OUT, OUTPUT);
-  pinMode(RESET_BTN_OUT, OUTPUT);
+  pinMode(CLR, OUTPUT);
+  pinMode(NOT_CLR, OUTPUT);
+
+  SetReset(false); // TOOD: do i need this
 
 }
 
@@ -84,7 +96,8 @@ bool IsHalted() {
 }
 
 void SetReset(bool flag) {
-  digitalWrite(RESET_BTN_OUT, flag ? HIGH : LOW);  
+  digitalWrite(CLR, flag ? HIGH : LOW);
+  digitalWrite(NOT_CLR, flag ? LOW : HIGH);
 }
 
 // Set the outgoing program line appropriately
@@ -96,13 +109,13 @@ void SetProgram(bool isRun) {
 }
 
 // Set the outgoing clock line appropriately.
-void SetClock(bool isAuto) {
-  digitalWrite(CLOCK_LED, isAuto ? HIGH : LOW);
+void SetClock(bool isClockAuto) {
+  digitalWrite(CLOCK_LED, isClockAuto ? HIGH : LOW);
 
   // Up on the main board, pressing the old clock button puts us in auto clock.
   // In that case, center pin is tied to GND. left is tied to 5V through a resistor.
   // When button is pressed (aka auto clock mode) Left pin goes high, center pin is 0V.
-  digitalWrite(CLOCK_OUT, isAuto ? HIGH : LOW);
+  digitalWrite(CLOCK_OUT, isClockAuto ? HIGH : LOW);
 }
 
 void MomentarilyDepressReset() {
