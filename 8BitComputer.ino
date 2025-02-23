@@ -11,7 +11,7 @@
 // * Tools > Serial Monitor > Set Baud to 57600 baud (to avoid garbled output).
 //
 // If you get an error:
-//   "avrdude: ser_open(): can't open device "/dev/cu.usbserial-AL03KKY3": No such file or directory"
+//   "avrdude: ser_open(): can't open device "/dev/cu.usbserial-*": No such file or directory"
 //   In the IDE menubar go to Tools > Port and select the correct port.
 // If you get errors during upload like:
 //   "avrdude: stk500_getsync() attempt 1 of 10: not in sync: resp=0xf8"
