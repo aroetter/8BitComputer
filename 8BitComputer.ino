@@ -5,7 +5,9 @@
 // Settings are:
 // * Tools > Board > "Arduino Nano"
 // * Tools > Processor > "ATMega328P"
-// * Tools > Port > make sure the right serial port is selected
+// * Tools > Port > make sure the right serial port is selected ("/dev/cu.usbserial-*"). If that option doesn't exist, it means
+//           the cables are wrong. I have luck with the silver rectangular USB-C to USB-A that plugs into the side of my mac, 
+             then a single USB-A to USB-Mini (not one of the multi armed adapter spaghetti cables, which didn't work).
 // * Tools > Serial Monitor > Set Baud to 57600 baud (to avoid garbled output).
 //
 // If you get an error:
@@ -102,7 +104,7 @@ void SetReset(bool flag) {
 
 // Set the outgoing program line appropriately
 void SetProgram(bool isRun) {
-  digitalWrite(PROGRAM_LED, isRun ? HIGH : LOW);
+  digitalWrite(PROGRAM_LED, isRun ? HIGH : LOW); // TODO: i think this is backwards....
 
 
   digitalWrite(PROGRAM_OUT, isRun ? LOW : HIGH);
@@ -128,40 +130,58 @@ void DoAutoMode() {
   Serial.println("\n\nTop of DoAutoMode()");
 
   // 1. Clock == Off/Manual
+  Serial.println("#1: SetClock(false), Meaning stop the clock");
   SetClock(false);
+  delay(2000);
 
   // 2. Program into load mode
   if(resetPressed) return;
+  Serial.println("#2: SettingProgram(false), Meaning load  program from ROM");
+  delay(2000);
   SetProgram(false);
 
   // 3. Reset
   if(resetPressed) return;
+  Serial.println("#3: Temporarily Pressing Reset");  
   MomentarilyDepressReset();
+  delay(2000);
 
   // 4. Start clock, wait until read a HALT
   if(resetPressed) return;
+  Serial.println("#4: Setting clock to true, and waiting for a Halt");  
   SetClock(true);
+  delay(2000);
+  Serial.print("#4.1: Waiting for a Halt");
   while(!IsHalted() && !resetPressed) delay(100); // wait for load to finish.
-  Serial.println("Program loaded!");
+  Serial.println("Halt detected! Program loaded!");
+  delay(2000);
 
   // 5. Clock Off/Manual
   if(resetPressed) return;
+  Serial.print("#5: Stopping Clock");
   SetClock(false);
+  delay(2000);
 
   // 6. Program into run mode
   if(resetPressed) return;
+  Serial.println("#6: SettingProgram(true), Meaning run the program that's in RAM");
   SetProgram(true);
+  delay(2000);
 
   // 7. Master Reset
   if(resetPressed) return;
+  Serial.println("#7: Temporarily Pressing Reset");  
   MomentarilyDepressReset();
+  delay(2000);
 
   // 8. Clock Auto
   if(resetPressed) return;
+  Serial.print("#8: Setting Auto Clock");
   SetClock(true);
+  delay(2000);
 
   // 9. Now just sleep forever. until a reset.
-  Serial.println("Just waiting for a reset...");
+  Serial.println("#9: Sleeping forever waiting for a reset button press...");
   while(!resetPressed) {
     delay(100);
   }
