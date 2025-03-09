@@ -7,7 +7,7 @@
 // * Tools > Processor > "ATMega328P"
 // * Tools > Port > make sure the right serial port is selected ("/dev/cu.usbserial-*"). If that option doesn't exist, it means
 //           the cables are wrong. I have luck with the silver rectangular USB-C to USB-A that plugs into the side of my mac, 
-             then a single USB-A to USB-Mini (not one of the multi armed adapter spaghetti cables, which didn't work).
+//             then a single USB-A to USB-Mini (not one of the multi armed adapter spaghetti cables, which didn't work).
 // * Tools > Serial Monitor > Set Baud to 57600 baud (to avoid garbled output).
 //
 // If you get an error:
